@@ -1,5 +1,4 @@
 from Crypto.Cipher import DES
-key = b'ABCDEFGH'
 
 def padding(ptxt,blk_size):
     x = len(ptxt)%blk_size
@@ -11,7 +10,7 @@ def padding(ptxt,blk_size):
     return ptxt
 
 #############################################################################
-def enc_ecb(ptxt, blk_size):
+def enc_ecb(key, ptxt, blk_size):
     ptxt = padding(ptxt,blk_size)
     i = 0
     ctxt = ""
@@ -27,7 +26,7 @@ def enc_ecb(ptxt, blk_size):
 
 
 #############################################################################
-def dec_ecb(ctxt, blk_size):
+def dec_ecb(key, ctxt, blk_size):
     i = 0
     ptxt = ""
     cipher = DES.new(key, DES.MODE_ECB)
@@ -42,7 +41,7 @@ def dec_ecb(ctxt, blk_size):
 
 
 #############################################################################
-def enc_cbc(IV, ptxt, blk_size):
+def enc_cbc(key, IV, ptxt, blk_size):
     ptxt = padding(ptxt,blk_size)
     i = 0
     ctxt = ""
@@ -59,7 +58,7 @@ def enc_cbc(IV, ptxt, blk_size):
 
 
 #############################################################################
-def dec_cbc(IV, ctxt, blk_size):
+def dec_cbc(key, IV, ctxt, blk_size):
     i = 0
     ptxt = ""
     cipher = DES.new(key, DES.MODE_ECB)
@@ -75,7 +74,7 @@ def dec_cbc(IV, ctxt, blk_size):
     return ptxt
 
 #############################################################################
-def enc_cfb(IV, ptxt, blk_size):
+def enc_cfb(key, IV, ptxt, blk_size):
     ptxt = padding(ptxt,blk_size)
     i = 0
     ctxt = ""
@@ -93,7 +92,7 @@ def enc_cfb(IV, ptxt, blk_size):
 
 
 #############################################################################
-def dec_cfb(IV, ctxt, blk_size):
+def dec_cfb(key, IV, ctxt, blk_size):
     i = 0
     ptxt = ""
     cipher = DES.new(key, DES.MODE_ECB)
@@ -110,7 +109,7 @@ def dec_cfb(IV, ctxt, blk_size):
 
 
 #############################################################################
-def enc_ofb(IV, ptxt, blk_size):
+def enc_ofb(key, IV, ptxt, blk_size):
     ptxt = padding(ptxt,blk_size)
     i = 0
     ctxt = ""
@@ -129,7 +128,7 @@ def enc_ofb(IV, ptxt, blk_size):
 
 
 #############################################################################
-def dec_ofb(IV, ctxt, blk_size):
+def dec_ofb(key, IV, ctxt, blk_size):
     i = 0
     ptxt = ""
     cipher = DES.new(key, DES.MODE_ECB)
@@ -146,7 +145,7 @@ def dec_ofb(IV, ctxt, blk_size):
 
 
 #############################################################################
-def enc_ctr(CTR, ptxt, blk_size):
+def enc_ctr(key, CTR, ptxt, blk_size):
     ptxt = padding(ptxt,blk_size)
     i = 0
     ctxt = ""
@@ -165,7 +164,7 @@ def enc_ctr(CTR, ptxt, blk_size):
 
 
 #############################################################################
-def dec_ctr(ctr, ctxt, blk_size):
+def dec_ctr(key, CTR, ctxt, blk_size):
     i = 0
     ptxt = ""
     cipher = DES.new(key, DES.MODE_ECB)
@@ -227,37 +226,37 @@ msg = "A B C Hello World"
 IV  = b'STUVWXYZ'
 CTR = b'00000009'
 blk_size = 8
-
+key = b'ABCDEFGH'
 print("MESSAGE : ",msg)
 
 
-ctxt = enc_ecb(msg, blk_size)
+ctxt = enc_ecb(key,msg, blk_size)
 print("cipher text (ECB) : ",ctxt)
-ptxt = dec_ecb(ctxt,blk_size)
+ptxt = dec_ecb(key,ctxt,blk_size)
 print("cipher text (ECB) : ",ptxt)
 
 
-ctxt = enc_cbc(IV, msg, blk_size)
+ctxt = enc_cbc(key,IV, msg, blk_size)
 print("cipher text (CBC) : ",ctxt)
-ptxt = dec_cbc(b'STUVWXYZ',ctxt,blk_size)
+ptxt = dec_cbc(key,IV,ctxt,blk_size)
 print("cipher text (CBC) : ",ptxt)
 
 
-ctxt = enc_cfb(IV, msg, blk_size)
+ctxt = enc_cfb(key,IV, msg, blk_size)
 print("cipher text (CFB) : ",ctxt)
-ptxt = dec_cfb(b'STUVWXYZ',ctxt,blk_size)
+ptxt = dec_cfb(key,IV,ctxt,blk_size)
 print("cipher text (CFB) : ",ptxt)
 
 
-ctxt = enc_ofb(IV, msg, blk_size)
+ctxt = enc_ofb(key,IV, msg, blk_size)
 print("cipher text (OFB) : ",ctxt)
-ptxt = dec_ofb(b'STUVWXYZ',ctxt,blk_size)
+ptxt = dec_ofb(key,IV,ctxt,blk_size)
 print("cipher text (OFB) : ",ptxt)
 
 
-ctxt = enc_ctr(CTR, msg, blk_size)
+ctxt = enc_ctr(key,CTR, msg, blk_size)
 print("cipher text (CTR) : ",ctxt)
-ptxt = dec_ctr(b'00000009',ctxt,blk_size)
+ptxt = dec_ctr(key,CTR,ctxt,blk_size)
 print("cipher text (CTR) : ",ptxt)
 
 
