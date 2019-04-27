@@ -1,7 +1,5 @@
 from Crypto.Cipher import DES
 
-key = b'ABCDEFGH'
-
 
 def padding(ptxt, blk_size):
 	x = len(ptxt) % blk_size
@@ -13,242 +11,225 @@ def padding(ptxt, blk_size):
 	return ptxt
 
 
-#############################################################################
-def enc_ecb(ptxt, blk_size):
-	ptxt = padding(ptxt, blk_size)
-	i = 0
-	ctxt = ""
-	cipher = DES.new(key, DES.MODE_ECB)
-	while i < len(ptxt):
-		block = ptxt[i:i + blk_size]
-		i = i + blk_size
-		pblk = block
-		cblk = cipher.encrypt(pblk)
-		ctxt += cblk.decode('cp437')
+class Crypt:
+	iv = b'STUVWXYZ'
+	ctr = b'00000009'
+	blk_size = 8
+	key = b'ABCDEFGH'
+	mode = "ECB"
 
-	return ctxt.encode('cp437')
+	def __init__(self, _key="ABCDEFGH", _mode="ECB", _blk_size=8, _iv="STUVWXYZ", _ctr="00000009"):
+		self.key = bytes(_key, encoding="utf8")
+		self.iv = bytes(_iv, encoding="utf8")
+		self.ctr = bytes(_ctr, encoding="utf8")
+		self.blk_size = _blk_size
+		self.mode = _mode
 
+	def encrypt(self, ptxt):
 
-#############################################################################
-def dec_ecb(ctxt, blk_size):
-	i = 0
-	ptxt = ""
-	cipher = DES.new(key, DES.MODE_ECB)
-	while i < len(ctxt):
-		block = ctxt[i:i + blk_size]
-		i = i + blk_size
-		cblk = block
-		pblk = cipher.decrypt(cblk)
-		ptxt += pblk.decode('cp437')
+		if self.mode == "ECB":
+			return self.enc_ecb(ptxt)
+		if self.mode == "CBC":
+			return self.enc_cbc(ptxt)
+		if self.mode == "CFB":
+			return self.enc_cfb(ptxt)
+		if self.mode == "CTR":
+			return self.enc_ctr(ptxt)
+		if self.mode == "OFB":
+			return self.enc_ofb(ptxt)
 
-	return ptxt
+	def decrypt(self, ctxt):
 
+		if self.mode == "ECB":
+			return self.dec_ecb(ctxt)
+		if self.mode == "CBC":
+			return self.dec_cbc(ctxt)
+		if self.mode == "CFB":
+			return self.dec_cfb(ctxt)
+		if self.mode == "CTR":
+			return self.dec_ctr(ctxt)
+		if self.mode == "OFB":
+			return self.dec_ofb(ctxt)
 
-#############################################################################
-def enc_cbc(iv, ptxt, blk_size):
-	ptxt = padding(ptxt, blk_size)
-	i = 0
-	ctxt = ""
-	cipher = DES.new(key, DES.MODE_ECB)
-	while i < len(ptxt):
-		block = ptxt[i:i + blk_size]
-		i = i + blk_size
-		pblk = bytes(blk ^ iv for blk, iv in zip(block.encode('cp437'), iv))
-		cblk = cipher.encrypt(pblk)
-		ctxt += cblk.decode('cp437')
-		iv = cblk
+	def enc_ecb(self, ptxt):
+		ptxt = padding(ptxt, self.blk_size)
+		i = 0
+		ctxt = ""
+		cipher = DES.new(self.key, DES.MODE_ECB)
+		while i < len(ptxt):
+			block = ptxt[i:i + self.blk_size]
+			i = i + self.blk_size
+			pblk = block
+			cblk = cipher.encrypt(pblk)
+			ctxt += cblk.decode('cp437')
 
-	return ctxt.encode('cp437')
+		return ctxt.encode('cp437')
 
+	def dec_ecb(self, ctxt):
+		i = 0
+		ptxt = ""
+		cipher = DES.new(self.key, DES.MODE_ECB)
+		while i < len(ctxt):
+			block = ctxt[i:i + self.blk_size]
+			i = i + self.blk_size
+			cblk = block
+			pblk = cipher.decrypt(cblk)
+			ptxt += pblk.decode('cp437')
 
-#############################################################################
-def dec_cbc(iv, ctxt, blk_size):
-	i = 0
-	ptxt = ""
-	cipher = DES.new(key, DES.MODE_ECB)
-	while i < len(ctxt):
-		block = ctxt[i:i + blk_size]
-		i = i + blk_size
-		cblk = block
-		pblk = cipher.decrypt(cblk)
-		pblk = bytes(blk ^ iv for blk, iv in zip(pblk, iv))
-		ptxt += pblk.decode('cp437')
-		iv = cblk
+		return ptxt
 
-	return ptxt
+	def enc_cbc(self, ptxt):
+		ptxt = padding(ptxt, self.blk_size)
+		i = 0
+		ctxt = ""
+		cipher = DES.new(self.key, DES.MODE_ECB)
+		while i < len(ptxt):
+			block = ptxt[i:i + self.blk_size]
+			i = i + self.blk_size
+			pblk = bytes(blk ^ self.iv for blk, self.iv in zip(block.encode('cp437'), self.iv))
+			cblk = cipher.encrypt(pblk)
+			ctxt += cblk.decode('cp437')
+			self.iv = cblk
 
+		return ctxt.encode('cp437')
 
-#############################################################################
-def enc_cfb(iv, ptxt, blk_size):
-	ptxt = padding(ptxt, blk_size)
-	i = 0
-	ctxt = ""
-	cipher = DES.new(key, DES.MODE_ECB)
-	while i < len(ptxt):
-		block = ptxt[i:i + 1]
-		pblk = block
-		i = i + 1
-		cblk = cipher.encrypt(iv)
-		cblk = bytes(c_blk ^ p_blk for c_blk, p_blk in zip(cblk[:1], pblk.encode('cp437')))
-		ctxt += cblk.decode('cp437')
-		iv = iv[1:] + cblk
+	def dec_cbc(self, ctxt):
+		i = 0
+		ptxt = ""
+		cipher = DES.new(self.key, DES.MODE_ECB)
+		while i < len(ctxt):
+			block = ctxt[i:i + self.blk_size]
+			i = i + self.blk_size
+			cblk = block
+			pblk = cipher.decrypt(cblk)
+			pblk = bytes(blk ^ self.iv for blk, self.iv in zip(pblk, self.iv))
+			ptxt += pblk.decode('cp437')
+			self.iv = cblk
 
-	return ctxt.encode('cp437')
+		return ptxt
 
+	def enc_cfb(self, ptxt):
+		ptxt = padding(ptxt, self.blk_size)
+		i = 0
+		ctxt = ""
+		cipher = DES.new(self.key, DES.MODE_ECB)
+		while i < len(ptxt):
+			block = ptxt[i:i + 1]
+			pblk = block
+			i = i + 1
+			cblk = cipher.encrypt(self.iv)
+			cblk = bytes(c_blk ^ p_blk for c_blk, p_blk in zip(cblk[:1], pblk.encode('cp437')))
+			ctxt += cblk.decode('cp437')
+			self.iv = self.iv[1:] + cblk
 
-#############################################################################
-def dec_cfb(iv, ctxt, blk_size):
-	i = 0
-	ptxt = ""
-	cipher = DES.new(key, DES.MODE_ECB)
-	while i < len(ctxt):
-		block = ctxt[i:i + 1]
-		cblk = block
-		i = i + 1
-		pblk = cipher.encrypt(iv)
-		pblk = bytes(p_blk ^ c_blk for p_blk, c_blk in zip(pblk[:1], cblk))
-		ptxt += pblk.decode('cp437')
-		iv = iv[1:] + cblk
+		return ctxt.encode('cp437')
 
-	return ptxt
+	def dec_cfb(self, ctxt):
+		i = 0
+		ptxt = ""
+		cipher = DES.new(self.key, DES.MODE_ECB)
+		while i < len(ctxt):
+			block = ctxt[i:i + 1]
+			cblk = block
+			i = i + 1
+			pblk = cipher.encrypt(self.iv)
+			pblk = bytes(p_blk ^ c_blk for p_blk, c_blk in zip(pblk[:1], cblk))
+			ptxt += pblk.decode('cp437')
+			self.iv = self.iv[1:] + cblk
 
+		return ptxt
 
-#############################################################################
-def enc_ofb(iv, ptxt, blk_size):
-	ptxt = padding(ptxt, blk_size)
-	i = 0
-	ctxt = ""
-	cipher = DES.new(key, DES.MODE_ECB)
-	while i < len(ptxt):
-		block = ptxt[i:i + 1]
-		pblk = block
-		i = i + 1
-		cblk = cipher.encrypt(iv)
-		iv = iv[1:] + cblk[:1]
-		cblk = bytes(c_blk ^ p_blk for c_blk, p_blk in zip(cblk[:1], pblk.encode('cp437')))
-		ctxt += cblk.decode('cp437')
+	def enc_ofb(self, ptxt):
+		ptxt = padding(ptxt, self.blk_size)
+		i = 0
+		ctxt = ""
+		cipher = DES.new(self.key, DES.MODE_ECB)
+		while i < len(ptxt):
+			block = ptxt[i:i + 1]
+			pblk = block
+			i = i + 1
+			cblk = cipher.encrypt(self.iv)
+			self.iv = self.iv[1:] + cblk[:1]
+			cblk = bytes(c_blk ^ p_blk for c_blk, p_blk in zip(cblk[:1], pblk.encode('cp437')))
+			ctxt += cblk.decode('cp437')
 
-	return ctxt.encode('cp437')
+		return ctxt.encode('cp437')
 
+	def dec_ofb(self, ctxt):
+		i = 0
+		ptxt = ""
+		cipher = DES.new(self.key, DES.MODE_ECB)
+		while i < len(ctxt):
+			block = ctxt[i:i + 1]
+			cblk = block
+			i = i + 1
+			pblk = cipher.encrypt(self.iv)
+			self.iv = self.iv[1:] + pblk[:1]
+			pblk = bytes(p_blk ^ c_blk for p_blk, c_blk in zip(pblk[:1], cblk))
+			ptxt += pblk.decode('cp437')
 
-#############################################################################
-def dec_ofb(iv, ctxt, blk_size):
-	i = 0
-	ptxt = ""
-	cipher = DES.new(key, DES.MODE_ECB)
-	while i < len(ctxt):
-		block = ctxt[i:i + 1]
-		cblk = block
-		i = i + 1
-		pblk = cipher.encrypt(iv)
-		iv = iv[1:] + pblk[:1]
-		pblk = bytes(p_blk ^ c_blk for p_blk, c_blk in zip(pblk[:1], cblk))
-		ptxt += pblk.decode('cp437')
+		return ptxt
 
-	return ptxt
+	def enc_ctr(self, ptxt):
+		ptxt = padding(ptxt, self.blk_size)
+		i = 0
+		ctxt = ""
+		cipher = DES.new(self.key, DES.MODE_ECB)
+		while i < len(ptxt):
+			block = ptxt[i:i + self.blk_size]
+			i = i + self.blk_size
+			pblk = block
+			cblk = cipher.encrypt(self.ctr)
+			cblk = bytes(p_blk ^ c_blk for p_blk, c_blk in zip(pblk.encode('cp437'), cblk))
+			ctxt += cblk.decode('cp437')
+			self.ctr = (str(int(self.ctr.decode('cp437')) + 1).zfill(8)).encode('cp437')
 
+		return ctxt.encode('cp437')
 
-#############################################################################
-def enc_ctr(ctr, ptxt, blk_size):
-	ptxt = padding(ptxt, blk_size)
-	i = 0
-	ctxt = ""
-	cipher = DES.new(key, DES.MODE_ECB)
-	while i < len(ptxt):
-		block = ptxt[i:i + blk_size]
-		i = i + blk_size
-		pblk = block
-		cblk = cipher.encrypt(ctr)
-		cblk = bytes(p_blk ^ c_blk for p_blk, c_blk in zip(pblk.encode('cp437'), cblk))
-		ctxt += cblk.decode('cp437')
-		update = (str(int(ctr.decode('cp437')) + 1).zfill(8)).encode('cp437')
+	def dec_ctr(self, ctxt):
+		i = 0
+		ptxt = ""
+		cipher = DES.new(self.key, DES.MODE_ECB)
+		while i < len(ctxt):
+			block = ctxt[i:i + self.blk_size]
+			i = i + self.blk_size
+			cblk = block
+			pblk = cipher.encrypt(self.ctr)
+			pblk = bytes(c_blk ^ p_blk for c_blk, p_blk in zip(cblk, pblk))
+			ptxt += pblk.decode('cp437')
+			self.ctr = (str(int(self.ctr.decode('cp437')) + 1).zfill(8)).encode('cp437')
 
-	return ctxt.encode('cp437')
+		return ptxt
 
-
-#############################################################################
-def dec_ctr(ctr, ctxt, blk_size):
-	i = 0
-	ptxt = ""
-	cipher = DES.new(key, DES.MODE_ECB)
-	while i < len(ctxt):
-		block = ctxt[i:i + blk_size]
-		i = i + blk_size
-		cblk = block
-		pblk = cipher.encrypt(CTR)
-		pblk = bytes(c_blk ^ p_blk for c_blk, p_blk in zip(cblk, pblk))
-		ptxt += pblk.decode('cp437')
-		update = (str(int(CTR.decode('cp437')) + 1).zfill(8)).encode('cp437')
-
-	return ptxt
-
-
-#############################################################################
-def prep(msg):
-	ptxt = ""
-	for c in msg:
-		ptxt += ('{0:08b}'.format(ord(c)))
-	return ptxt
-
-
-'''
-key = b'ABCDEFGH'
-cipher = DES.new(key, DES.MODE_ECB)
-plaintext = b'ABCDEFGH'
-msg = cipher.encrypt(plaintext)
-print(msg)
-msg = cipher.decrypt(msg)
-print(msg)
-
-
-print("choose the blocking mode:")
-print("(1) ECB\n(2) CBC\n(3) CFB\n(4) OFB\n(5) CTR")
-mode = input("blocking mode number : ")
-if mode == "1":
-	ecb(8)
-elif mode == "2":
-	cbc(8)
-elif mode == "3":
-	cfb(8)
-elif mode == "4":
-	ofb(8)
-elif mode == "5":
-	ctr(8)
-else:
-	print("wrong choice !\n")
-
-ptxt = msg #prep(msg)
-print("plain text : ",ptxt)
-'''
-
-msg = "A B C Hello World"
-IV = b'STUVWXYZ'
-CTR = b'00000009'
-blk_size = 8
-
-print("MESSAGE : ", msg)
-
-ctxt = enc_ecb(msg, blk_size)
-print("cipher text (ECB) : ", ctxt)
-ptxt = dec_ecb(ctxt, blk_size)
-print("cipher text (ECB) : ", ptxt)
-
-ctxt = enc_cbc(IV, msg, blk_size)
-print("cipher text (CBC) : ", ctxt)
-ptxt = dec_cbc(b'STUVWXYZ', ctxt, blk_size)
-print("cipher text (CBC) : ", ptxt)
-
-ctxt = enc_cfb(IV, msg, blk_size)
-print("cipher text (CFB) : ", ctxt)
-ptxt = dec_cfb(b'STUVWXYZ', ctxt, blk_size)
-print("cipher text (CFB) : ", ptxt)
-
-ctxt = enc_ofb(IV, msg, blk_size)
-print("cipher text (OFB) : ", ctxt)
-ptxt = dec_ofb(b'STUVWXYZ', ctxt, blk_size)
-print("cipher text (OFB) : ", ptxt)
-
-ctxt = enc_ctr(CTR, msg, blk_size)
-print("cipher text (CTR) : ", ctxt)
-ptxt = dec_ctr(b'00000009', ctxt, blk_size)
-print("cipher text (CTR) : ", ptxt)
+#
+# msg = "A B C Hello World"
+# IV = b'STUVWXYZ'
+# CTR = b'00000009'
+# blk_size = 8
+# key = b'ABCDEFGH'
+# print("MESSAGE : ", msg)
+#
+# ctxt = enc_ecb(key, msg, blk_size)
+# print("cipher text (ECB) : ", ctxt)
+# ptxt = dec_ecb(key, ctxt, blk_size)
+# print("cipher text (ECB) : ", ptxt)
+#
+# ctxt = enc_cbc(key, IV, msg, blk_size)
+# print("cipher text (CBC) : ", ctxt)
+# ptxt = dec_cbc(key, IV, ctxt, blk_size)
+# print("cipher text (CBC) : ", ptxt)
+#
+# ctxt = enc_cfb(key, IV, msg, blk_size)
+# print("cipher text (CFB) : ", ctxt)
+# ptxt = dec_cfb(key, IV, ctxt, blk_size)
+# print("cipher text (CFB) : ", ptxt)
+#
+# ctxt = enc_ofb(key, IV, msg, blk_size)
+# print("cipher text (OFB) : ", ctxt)
+# ptxt = dec_ofb(key, IV, ctxt, blk_size)
+# print("cipher text (OFB) : ", ptxt)
+#
+# ctxt = enc_ctr(key, CTR, msg, blk_size)
+# print("cipher text (CTR) : ", ctxt)
+# ptxt = dec_ctr(key, CTR, ctxt, blk_size)
+# print("cipher text (CTR) : ", ptxt)
