@@ -1,6 +1,7 @@
 from Crypto.Cipher import DES
 
 
+
 def padding(ptxt, blk_size):
     x = len(ptxt) % blk_size
     if x > 0:
