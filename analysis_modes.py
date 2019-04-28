@@ -7,67 +7,49 @@ import matplotlib.pyplot as plt
 
 
 #########################################################################
-cryp = modes.Crypt(_mode="ECB")
+#cryp = modes.Crypt(_mode="ECB")
 #cryp = modes.Crypt(_mode="CBC")
 #cryp = modes.Crypt(_mode="CFB")
 #cryp = modes.Crypt(_mode="OFB")
-#cryp = modes.Crypt(_mode="CTR")
+cryp = modes.Crypt(_mode="CTR")
 
 msg = ""
-bits_time = []
-for i in range (1,1000):
-    print(i)
+enc_time = []
+dec_time = []
+blocks = 100
+tot = 20
+for i in range (1,blocks):
+    print(blocks," : ",i)
     msg += "ABCDEFGH"
 #    print("Message : ",msg)
     
-    start = time.time()
-    ctxt = cryp.encrypt(msg)
-    end = time.time()
-    bits_time.append([i, end-start])
-    
-#    print("Cipher text : ",ctxt)
-    ptxt = cryp.decrypt(ctxt)
-#    print("Plain text : ",ptxt)
+    x = 0
+    y = 0
+    for j in range (1,tot):
+        start = time.time()
+        ctxt = cryp.encrypt(msg)
+        end = time.time()
+        x = x + end - start
+
+        
+        start = time.time()
+        ptxt = cryp.decrypt(ctxt)
+        end = time.time()
+        y = y + end - start
+
+    enc_time.append([i, x/tot])
+    dec_time.append([i, x/tot])
 
 
-x = [a for (a,b) in bits_time]
-y = [b for (a,b) in bits_time]
+
+
+x = [a for (a,b) in enc_time]
+y = [b for (a,b) in enc_time]
 plt.plot(x,y)
 plt.show()
 
 
-
-
-
-#
-# msg = "A B C Hello World"
-# IV = b'STUVWXYZ'
-# CTR = b'00000009'
-# blk_size = 8
-# key = b'ABCDEFGH'
-# print("MESSAGE : ", msg)
-#
-# ctxt = enc_ecb(key, msg, blk_size)
-# print("cipher text (ECB) : ", ctxt)
-# ptxt = dec_ecb(key, ctxt, blk_size)
-# print("cipher text (ECB) : ", ptxt)
-#
-# ctxt = enc_cbc(key, IV, msg, blk_size)
-# print("cipher text (CBC) : ", ctxt)
-# ptxt = dec_cbc(key, IV, ctxt, blk_size)
-# print("cipher text (CBC) : ", ptxt)
-#
-# ctxt = enc_cfb(key, IV, msg, blk_size)
-# print("cipher text (CFB) : ", ctxt)
-# ptxt = dec_cfb(key, IV, ctxt, blk_size)
-# print("cipher text (CFB) : ", ptxt)
-#
-# ctxt = enc_ofb(key, IV, msg, blk_size)
-# print("cipher text (OFB) : ", ctxt)
-# ptxt = dec_ofb(key, IV, ctxt, blk_size)
-# print("cipher text (OFB) : ", ptxt)
-#
-# ctxt = enc_ctr(key, CTR, msg, blk_size)
-# print("cipher text (CTR) : ", ctxt)
-# ptxt = dec_ctr(key, CTR, ctxt, blk_size)
-# print("cipher text (CTR) : ", ptxt)
+x = [a for (a,b) in dec_time]
+y = [b for (a,b) in dec_time]
+plt.plot(x,y)
+plt.show()
