@@ -7,25 +7,25 @@ import matplotlib.pyplot as plt
 
 
 #########################################################################
-#cryp = modes.Crypt(_mode="ECB",_blk_size=8)
-#cryp = modes.Crypt(_mode="CBC",_blk_size=8)
-#cryp = modes.Crypt(_mode="CFB",_blk_size=8)
-cryp = modes.Crypt(_mode="OFB",_blk_size=8)
-#cryp = modes.Crypt(_mode="CTR",_blk_size=8)
+cryp = modes.Crypt(_mode="ECB",_blk_size=8)
+#cryp = modes.Crypt(_mode="CBC",_blk_size=80)
+#cryp = modes.Crypt(_mode="CFB",_blk_size=32)
+#cryp = modes.Crypt(_mode="OFB",_blk_size=32)
+#cryp = modes.Crypt(_mode="CTR",_blk_size=800)
 
 msg = ""
 enc_time = []
 dec_time = []
 blocks = 1000
 tot = 20
-for i in range (1,blocks,10):
+for i in range (0,blocks,10):
     print(blocks," : ",i)
     msg += "ABCDEFGH"
 #    print("Message : ",msg)
     
     x = 0
     y = 0
-    for j in range (1,tot):
+    for j in range (0,tot):
         start = time.time()
         ctxt = cryp.encrypt(msg)
         end = time.time()
