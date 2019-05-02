@@ -189,7 +189,7 @@ class Crypt:
             cblk = cipher.encrypt(ctr)
             cblk = bytes(p_blk ^ c_blk for p_blk, c_blk in zip(pblk.encode('cp437'), cblk))
             ctxt += cblk.decode('cp437')
-            ctr = (str(int(ctr.decode('cp437')) + 1).zfill(8)).encode('cp437')
+            ctr = (str(int(ctr.decode('cp437')) + 1).zfill(self.blk_size)).encode('cp437')
         
         return ctxt.encode('cp437')
 
@@ -205,7 +205,7 @@ class Crypt:
             pblk = cipher.encrypt(ctr)
             pblk = bytes(c_blk ^ p_blk for c_blk, p_blk in zip(cblk, pblk))
             ptxt += pblk.decode('cp437')
-            ctr = (str(int(ctr.decode('cp437')) + 1).zfill(8)).encode('cp437')
+            ctr = (str(int(ctr.decode('cp437')) + 1).zfill(self.blk_size)).encode('cp437')
             
         return ptxt
 
