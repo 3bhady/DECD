@@ -2,26 +2,6 @@ import socket
 import threading
 import modes
 import sys
-from Crypto.Cipher import DES
-
-
-# port = 7777
-
-
-def pad(s):
-	while len(s) % 8:
-		s += " "
-	return s
-
-
-def encrypt(key, plaintext):
-	cipher = DES.new(key, DES.MODE_ECB)
-	c = cipher.encrypt(pad(plaintext))
-	return c
-
-
-# m = cipher.decrypt(c)
-# print(m)
 
 
 class Comm:
