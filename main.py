@@ -3,6 +3,7 @@ import threading
 import modes
 import hashlib
 import time
+import os
 
 
 def hmac(plain_text, _key="S3CUR1TY"):
@@ -36,7 +37,7 @@ class Comm:
 	mode = "ECB"
 	finish = False
 
-	def __init__(self, server="127.0.0.1", port=5112):
+	def __init__(self, server="127.0.0.1", port=5132):
 		try:
 			self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			self.server_address = ('localhost', port)
@@ -77,15 +78,9 @@ class Comm:
 						return
 				else:
 					print('No more data from', self.client_address)
-					self.finish = True
-					print("Connection Closed!")
-					print("Bye Bye!")
-					exit(0)
+					self.close_conn()
 		except:
-			self.finish = True
-			print("Connection Closed!")
-			print("Bye Bye!")
-			exit(0)
+			self.close_conn()
 
 	def send(self, data):
 		if type(data) is str:
@@ -132,13 +127,15 @@ class Comm:
 		print("* Closing connection..")
 		time.sleep(.300)
 		print("* Closing connection...")
-		if self.is_server:
-			self.conn.shutdown(0)
-			self.conn.close()
-		else:
-			self.sock.shutdown(0)
-			self.sock.close()
-		exit(0)
+		try:
+			if self.is_server:
+				self.conn.shutdown(socket.SHUT_RDWR)
+				self.conn.close()
+			else:
+				self.sock.shutdown(socket.SHUT_RDWR)
+				self.sock.close()
+		finally:
+			os._exit(1)
 
 
 
@@ -148,8 +145,7 @@ buff_size = 1024
 print("* What Do you want to do?:")
 print("> 1) Use default configurations.")
 print("> 2) Enter custom configurations.")
-# choice = input()
-choice = "1"
+choice = input()
 if choice == "2":
 	print("* Enter key for DES. Key must be 8 bytes.")
 	key = input()
@@ -204,7 +200,7 @@ while True:
 		try:
 			comm.close_conn()
 		finally:
-			exit(0)
+			os._exit(0)
 	choice = str(choice)
 	if choice == "1":
 		print("* Enter the message you want to send.")
@@ -243,4 +239,4 @@ while True:
 		try:
 			comm.close_conn()
 		finally:
-			exit(0)
+			os._exit(1)
