@@ -13,15 +13,27 @@ def padding(ptxt, blk_size):
 
 class Crypt:
 
-	def __init__(self, _key="ABCDEFGH", _mode="ECB", _blk_size=8, _iv="STUVWXYZ", _ctr="00000009"):
+	def __init__(self, _key="ABCDEFGH", _mode="ECB", _blk_size="8", _iv="STUVWXYZ", _ctr="00000009"):
 		if _key is None or len(_key) != 8:
 			_key = "ABCDEFGH"
-		if len(_blk_size) < 8:
+
+		try:
+			_blk_size = int(_blk_size)
+		except:
 			_blk_size = 8
+		while _blk_size % 8:
+			_blk_size += 1
+
 		if len(_iv) is None or _iv == " " or _iv == "":
 			_iv = "STUVWXYZ"
+		while len(_iv) % _blk_size:
+			_iv += "X"
+
 		if len(_ctr) is None or _ctr == " " or _ctr == "":
 			_ctr = "00000009"
+		while len(_ctr) % _blk_size:
+			_ctr += "0"
+
 		self.key = bytes(_key, encoding="utf8")
 		self.iv = bytes(_iv, encoding="utf8")
 		self.ctr = bytes(_ctr, encoding="utf8")

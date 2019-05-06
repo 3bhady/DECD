@@ -37,7 +37,7 @@ class Comm:
 	mode = "ECB"
 	finish = False
 
-	def __init__(self, server="127.0.0.1", port=5132):
+	def __init__(self, server="127.0.0.1", port=5131):
 		try:
 			self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			self.server_address = ('localhost', port)
